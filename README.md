@@ -1,5 +1,7 @@
 # PHP ZPL to PDF
-A library to parse ZPLs and convert them to PDFs
+A library to parse ZPLs and convert them to PDFs. 
+
+Very much WIP
 
 ## ZPL Guides
 - https://labelary.com/zpl.html
