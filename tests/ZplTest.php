@@ -14,7 +14,7 @@ class ZplTest extends TestCase
     public function testToPdf($zpl_string)
     {
         $zpl = ZplFactory::fromString($zpl_string);
-        $result = $zpl->toPdf();
+        $result = $zpl->toPdf(101.6, 152.4);
         file_put_contents('test.pdf', $result);
     }
 

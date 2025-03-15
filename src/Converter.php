@@ -76,11 +76,13 @@ class Converter
     /**
      * Construct a new instance of the Converter
      *
+     * @param float $width PDF width in mm
+     * @param float $height PDF height in mm
      * @param int $dpmm The dots per millimeter to render the ZPL with
      */
-    public function __construct(private int $dpmm = 8)
+    public function __construct(private float $width, private float $height, private int $dpmm = 8)
     {
-        $this->pdf = new Fpdf('P', 'mm', [101.6, 152.4]);
+        $this->pdf = new Fpdf('P', 'mm', [$width, $height]);
         $this->pdf->AddPage();
         $this->pdf->SetCreator('php-zpl-to-pdf', true);
         $this->defaultFont();
