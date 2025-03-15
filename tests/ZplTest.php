@@ -27,7 +27,7 @@ class ZplTest extends TestCase
     {
         $basic = [
             'zpl_string' => "^XA
-                ^FO50,60^A0,40^FDHello World^FS
+                ^FO50,60^A0,40^FDWorld's Best Griddle^FS
                 ^FO60,120^BY3^BCN,60,,,,A^FD1234ABC^FS
                 ^FO25,25^GB380,200,2^FS
                 ^XZ",
