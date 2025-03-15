@@ -8,7 +8,8 @@
         }
     ],
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.2",
+        "fpdf/fpdf": "^1.86"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5"

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PhpZpl;
 
-use RuntimeException;
+use Exception;
 
 /**
  * @see https://lisperator.net/pltut/parser/input-stream
@@ -12,12 +12,42 @@ use RuntimeException;
 class Stream
 {
     /**
+     * The size in bytes of the stream
+     */
+    private int $size = 0;
+
+    /**
+     * Whether we have hit the current stream end
+     */
+    private bool $stream_end = false;
+
+    /**
      * Construct a new Stream instance
      *
      * @param resource $resource Should be a resource stream
      */
     public function __construct(private $resource)
     {
+        $stats = fstat($resource);
+        if (!$stats) {
+            throw new Exception('Unable to get stream length');
+        }
+
+        /**
+         * Offset 7 in the stats array is size in bytes
+         *
+         * @see https://www.php.net/manual/en/function.fstat.php
+         * @see https://www.php.net/manual/en/function.stat.php
+         * */
+        $this->size = $stats[7];
+    }
+
+    /**
+     * Called when GC removes the object from memory
+     */
+    public function __destruct()
+    {
+        $this->close();
     }
 
     /**
@@ -29,7 +59,10 @@ class Stream
     public function peek(): string
     {
         $char = $this->next();
-        $this->seek(-1);
+        if (!$this->stream_end) {
+            $this->seek(-1);
+        }
+
         return $char;
     }
 
@@ -40,13 +73,15 @@ class Stream
      */
     public function next(): ?string
     {
-        if (feof($this->resource)) {
+        $position = $this->getPosition();
+        if (feof($this->resource) || $position + 1 > $this->size) {
+            $this->stream_end = true;
             return '';
         }
 
         $char = fread($this->resource, 1);
         if ($char === false) {
-            throw new RuntimeException("Unable to read stream at position " . $this->getPosition());
+            throw new Exception("Unable to read stream at position $position");
         }
 
         return $char;
@@ -59,6 +94,7 @@ class Stream
      */
     public function reset(): void
     {
+        $this->stream_end = false;
         rewind($this->resource);
     }
 
@@ -71,7 +107,7 @@ class Stream
     {
         $pos = ftell($this->resource);
         if ($pos === false) {
-            throw new RuntimeException("Unable to read current stream position. Ensure your stream is seekable");
+            throw new Exception("Unable to read current stream position. Ensure your stream is seekable");
         }
 
         return $pos;
@@ -95,6 +131,9 @@ class Stream
      */
     public function close(): void
     {
-        fclose($this->resource);
+        // Check hasn't alrready been closed
+        if (is_resource($this->resource)) {
+            fclose($this->resource);
+        }
     }
 }

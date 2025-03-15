@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PhpZpl;
 
-use RuntimeException;
+use Exception;
 
 /**
  * Responsible for splitting the ZPL input into its respective commands which can be handled by the parser
@@ -51,8 +51,12 @@ class Lexer
     public function readNext(): string
     {
         $char = $this->stream->peek();
+        if (empty($char)) {
+            return '';
+        }
+
         if ($char !== '^' && $char !== '~') {
-            throw new RuntimeException('Unable to parse at stream position ' . $this->stream->getPosition() + 1);
+            throw new Exception('Unable to parse at stream position ' . $this->stream->getPosition() + 1);
         }
 
         return $this->stream->next() . $this->readCommand();
